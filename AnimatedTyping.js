@@ -94,10 +94,13 @@ export default function AnimatedTyping(props) {
 
 let styles = StyleSheet.create({
   text: {
+    flexDirection: 'column',
+    width: '100%',
     color: '#000',
     fontSize: 16,
     alignSelf: 'stretch',
     fontWeight: 'bold',
     textAlign: 'center',
+    backgroundColor: 'red',
   },
 });
