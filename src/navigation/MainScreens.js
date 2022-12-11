@@ -5,22 +5,11 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import HomeSvg from '../assets/tabImages/HomeSvg';
 import HistoryRatingSvg from '../assets/tabImages/historyRatingSvg';
-
-function HomeScreen() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Home!</Text>
-    </View>
-  );
-}
-
-function SettingsScreen() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Settings!</Text>
-    </View>
-  );
-}
+import BillSvg from '../assets/tabImages/BillSvg';
+import MainScreen from '../screens/MainScreen';
+import SettingScreen from '../screens/SettingScreen';
+import PanGestureScreen from '../screens/PanGestureScreen';
+import SwipingScreen from '../screens/SwipingScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,13 +17,22 @@ function MyTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Home"
+        name="MainScreen"
         options={{
           headerShown: false,
           tabBarLabel: 'Главная',
           tabBarIcon: ({focused}) => <HomeSvg focused={focused} />,
         }}
-        component={HomeScreen}
+        component={MainScreen}
+      />
+      <Tab.Screen
+        name="PanGesture"
+        options={{
+          headerShown: false,
+          tabBarLabel: 'Спираль',
+          tabBarIcon: ({focused}) => <BillSvg focused={focused} />,
+        }}
+        component={PanGestureScreen}
       />
       <Tab.Screen
         name="Settings"
@@ -43,7 +41,16 @@ function MyTabs() {
           tabBarLabel: 'Настройки',
           tabBarIcon: ({focused}) => <HistoryRatingSvg focused={focused} />,
         }}
-        component={SettingsScreen}
+        component={SettingScreen}
+      />
+      <Tab.Screen
+        name="Swiping"
+        options={{
+          headerShown: false,
+          tabBarLabel: 'Рычаг',
+          tabBarIcon: ({focused}) => <HistoryRatingSvg focused={focused} />,
+        }}
+        component={SwipingScreen}
       />
     </Tab.Navigator>
   );

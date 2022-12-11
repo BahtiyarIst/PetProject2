@@ -1,94 +1,85 @@
-import React, {useEffect, useContext, useState, useRef} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
-import {Appearance} from 'react-native';
-
-import AnimatedTyping from '../../AnimatedTyping';
-import AuthContext from '../context/auth/AuthContext';
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
 
 import Animated, {
-  useSharedValue,
+  useAnimatedGestureHandler,
   useAnimatedStyle,
-  withTiming,
+  useSharedValue,
   withSpring,
-  withRepeat,
 } from 'react-native-reanimated';
 
-const SIZE = 100.0;
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+} from 'react-native-gesture-handler';
+
+const SIZE = 90;
+const CIRCLE_RADIUS = SIZE * 2;
 
 const MainScreen = () => {
-  const authContext = useContext(AuthContext);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
 
-  let [nextPressed, setNextPressed] = useState(false);
-  const colorScheme = Appearance.getColorScheme();
+  const panGestureEvent = useAnimatedGestureHandler({
+    onStart: (event, context) => {
+      context.translateX = translateX.value;
+      context.translateY = translateY.value;
+    },
+    onActive: (event, context) => {
+      translateX.value = event.translationX + context.translateX;
+      translateY.value = event.translationY + context.translateY;
+    },
+    onEnd: () => {
+      const distance = Math.sqrt(translateX.value ** 2 + translateY.value ** 2);
+      if (distance < CIRCLE_RADIUS) {
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+    },
+  });
 
-  const {signin} = authContext;
-
-  const progress = useSharedValue(1);
-  const scale = useSharedValue(1);
-
-  const reanimatedStyle = useAnimatedStyle(() => {
-    console.log('progress.value', progress.value);
+  const rStyle = useAnimatedStyle(() => {
     return {
-      opacity: progress.value,
-      borderRadius: (progress.value * SIZE) / 2,
       transform: [
-        {scale: scale.value},
-        {rotate: `${progress.value * 2 * Math.PI}rad`},
+        {translateX: translateX.value},
+        {translateY: translateY.value},
       ],
     };
-  }, []);
-
-  useEffect(() => {
-    progress.value = withRepeat(withSpring(0.5), 3, true);
-    scale.value = withRepeat(withSpring(0.5), 3, true);
-  }, []);
-
-  const fadeInBall = () => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const fadeOutBall = () => {
-    Animated.timing(opacity, {
-      toValue: 0,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  };
-
+  });
   return (
-    <SafeAreaView style={styles.container}>
-      <Animated.View
-        style={[
-          {
-            height: SIZE,
-            width: 100,
-            backgroundColor: 'blue',
-          },
-          reanimatedStyle,
-        ]}></Animated.View>
-      <TouchableOpacity style={{marginTop: 150}}>
-        <Text style={{fontWeight: 'bold'}}>Başla</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <View style={styles.container}>
+        <View style={styles.circle}>
+          <PanGestureHandler onGestureEvent={panGestureEvent}>
+            <Animated.View style={[styles.square, rStyle]} />
+          </PanGestureHandler>
+        </View>
+      </View>
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#fff',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  square: {
+    width: SIZE,
+    height: SIZE,
+    backgroundColor: 'rgba(0, 0, 256, 0.5)',
+    borderRadius: 20,
+  },
+  circle: {
+    width: CIRCLE_RADIUS * 2,
+    height: CIRCLE_RADIUS * 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: CIRCLE_RADIUS,
+    borderWidth: 5,
+    borderColor: 'rgba(0, 0, 256, 0.5)',
   },
 });
 
